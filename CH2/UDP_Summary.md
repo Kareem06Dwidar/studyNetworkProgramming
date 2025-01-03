@@ -32,4 +32,3 @@
 ### Conclusion
 - **Evaluation of UDP**: UDP provides a simple method for transmitting data quickly with minimal protocol overhead. It is best suited for applications where speed is critical and data loss is permissible. For applications requiring robust data integrity and security, additional application-layer protocols or switching to TCP might be necessary.
 
-This expanded summary delves deeper into the operational aspects and practical implications of using UDP, highlighting both its advantages and challenges in network communication.
