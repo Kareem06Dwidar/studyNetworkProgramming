@@ -1,7 +1,3 @@
-Certainly! Let's provide a detailed breakdown of the script's functionality along with the corresponding code snippets to illustrate how each part works.
-
-### Code Snippet and Explanation
-
 #### Import Libraries
 
 ```python
