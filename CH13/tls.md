@@ -1,7 +1,7 @@
-# **Python SMTP Email Sender (`simple.py`) - Explained with Exam Questions**
+# **Python SMTP Email Sender with TLS Support (`tls.py`) - Explained with Exam Questions**
 ---
 
-This script demonstrates how to send a **basic email** using Python's `smtplib`. It sends an email with a **plain-text body** and basic headers via an **SMTP server**.
+This script demonstrates how to send a **secure email** using Python's `smtplib` with **TLS encryption**. It uses the **STARTTLS** command to encrypt the communication channel between the client and the SMTP server.
 
 ---
 
@@ -9,21 +9,23 @@ This script demonstrates how to send a **basic email** using Python's `smtplib`.
 
 ## **Imports and Setup:**
 ```python
-import sys, smtplib
+import sys, smtplib, socket, ssl
 ```
 
 ### **Explanation:**
-- **`sys`**: Used for handling **command-line arguments** and exiting with error codes.  
-- **`smtplib`**: Python's **Simple Mail Transfer Protocol (SMTP)** library for sending emails.  
+- **`sys`**: Used for handling **command-line arguments** and error handling.  
+- **`smtplib`**: Provides support for **sending emails** using the **SMTP protocol**.  
+- **`socket`**: Manages **network errors**.  
+- **`ssl`**: Provides support for **TLS encryption** (Transport Layer Security).  
 
 ---
 
 ### ✅ **Potential Questions:**
-1. **What does the `smtplib` module do in Python?**  
-   - It provides functions to send emails using the **SMTP protocol**.  
+1. **What is the purpose of the `smtplib` library in this script?**  
+   - It is used to send **emails** using the SMTP protocol.  
 
-2. **Why use `sys` in this script?**  
-   - To handle **command-line arguments** and **exit control**.  
+2. **Why is the `ssl` module imported?**  
+   - To establish a **secure** connection using **TLS encryption**.  
 
 ---
 
@@ -37,237 +39,238 @@ Subject: Test Message from simple.py
 
 Hello,
 
-This is a test message sent to you from the simple.py program
+This is a test message sent to you from the tls.py program
 in Foundations of Python Network Programming.
 """
 ```
 
 ### **Explanation:**
-- **Multiline String:**  
-   - A **template** for the email body is stored using triple quotes (`"""`).  
-
-- **Template Fields:**  
-   - `{}` placeholders are used for dynamic **`To:`**, **`From:`**, and the **email body**.
+- A **plain text** email message template with placeholders `{}` for:  
+   - `To` (Recipient's email).  
+   - `From` (Sender's email).  
 
 ---
 
 ### ✅ **Potential Questions:**
-1. **Why use a message template in this script?**  
-   - To simplify the **formatting** and **reusability** of the email body.  
+1. **Why use a message template?**  
+   - To simplify the process of **reusing** the message structure.  
 
-2. **How does Python insert values into the placeholders (`{}`)?**  
-   - Using the **`format()`** method for string interpolation.  
-
----
+2. **How are placeholders filled in the message?**  
+   - Using the `.format()` method later in the script.  
 
 ---
 
-## **Main Function: Argument Parsing and Email Construction**
+---
+
+## **Main Function: Handling Command-Line Arguments and Sending the Message**
 ```python
 def main():
     if len(sys.argv) < 4:
         name = sys.argv[0]
-        print("usage: {} server fromaddr toaddr [toaddr...]".format(name))
+        print("Syntax: {} server fromaddr toaddr [toaddr...]".format(name))
         sys.exit(2)
-```
 
-### **Explanation:**
-1. **Argument Handling:**
-   ```python
-   if len(sys.argv) < 4:
-       print("usage: {} server fromaddr toaddr [toaddr...]".format(name))
-       sys.exit(2)
-   ```
-   - The script requires **at least 3 arguments**:  
-     - `server`: The SMTP server address.  
-     - `fromaddr`: The sender's email address.  
-     - `toaddr`: One or more recipient addresses.  
-
-2. **Exiting on Error:**
-   ```python
-   sys.exit(2)
-   ```
-   - If the arguments are insufficient, the script prints a **usage message** and exits with **error code 2**.  
-
----
-
-### ✅ **Potential Questions:**
-1. **Why check the length of `sys.argv`?**  
-   - To ensure the **correct number of arguments** are provided.  
-
-2. **What does `sys.exit(2)` do?**  
-   - It terminates the script with an **error code** indicating improper usage.  
-
----
-
----
-
-## **Extracting Arguments and Formatting the Message:**
-```python
     server, fromaddr, toaddrs = sys.argv[1], sys.argv[2], sys.argv[3:]
     message = message_template.format(', '.join(toaddrs), fromaddr)
 ```
 
 ### **Explanation:**
-1. **Extracting Arguments:**
+1. **Checking Arguments:**
    ```python
-   server, fromaddr, toaddrs = sys.argv[1], sys.argv[2], sys.argv[3:]
+   if len(sys.argv) < 4:
    ```
-   - **`server`**: SMTP server address.  
-   - **`fromaddr`**: Sender's email address.  
-   - **`toaddrs`**: List of recipient addresses.  
+   - Requires **at least 3 arguments**:  
+     - `server` – SMTP server address.  
+     - `fromaddr` – Sender’s email address.  
+     - `toaddrs` – Recipient(s) email address.  
 
-2. **Formatting the Message:**
+2. **Error Handling for Missing Arguments:**
    ```python
-   message = message_template.format(', '.join(toaddrs), fromaddr)
+   sys.exit(2)
    ```
-   - The email message is generated using the **template** and the provided arguments.  
+   - Exits with **error code 2** if the arguments are missing.  
 
 ---
 
 ### ✅ **Potential Questions:**
-1. **Why use `sys.argv[3:]`?**  
-   - To allow multiple **recipients** to be specified after the sender's address.  
+1. **Why check the length of `sys.argv`?**  
+   - To ensure the user provides the required **server, sender, and recipient** details.  
 
-2. **What does the `format()` method do here?**  
-   - It replaces the placeholders `{}` with the provided values.  
-
----
+2. **What does `sys.exit(2)` indicate?**  
+   - It indicates an **improper usage** error.  
 
 ---
 
-## **Sending the Email Using `smtplib`:**
+---
+
+## **Connecting to the SMTP Server and Sending the Email Securely:**
 ```python
-    connection = smtplib.SMTP(server)
-    connection.sendmail(fromaddr, toaddrs, message)
-    connection.quit()
+    try:
+        connection = smtplib.SMTP(server)
+        send_message_securely(connection, fromaddr, toaddrs, message)
+    except (socket.gaierror, socket.error, socket.herror,
+            smtplib.SMTPException) as e:
+        print("Your message may not have been sent!")
+        print(e)
+        sys.exit(1)
+    else:
+        s = '' if len(toaddrs) == 1 else 's'
+        print("Message sent to {} recipient{}".format(len(toaddrs), s))
+        connection.quit()
 ```
+
+---
 
 ### **Explanation:**
 1. **Connecting to the SMTP Server:**
    ```python
    connection = smtplib.SMTP(server)
    ```
-   - Connects to the specified **SMTP server**.  
+   - Opens an **unencrypted** connection to the specified **SMTP server**.  
 
-2. **Sending the Email:**
+2. **Calling Secure Sending Function:**
    ```python
-   connection.sendmail(fromaddr, toaddrs, message)
+   send_message_securely(connection, fromaddr, toaddrs, message)
    ```
-   - **`sendmail()`** sends the email using the provided **sender**, **recipients**, and **message body**.  
+   - Calls the **`send_message_securely`** function to **upgrade** the connection to **TLS encryption**.  
 
-3. **Closing the Connection:**
+3. **Error Handling:**
+   ```python
+   except (socket.gaierror, socket.error, socket.herror, smtplib.SMTPException) as e:
+   ```
+   - Catches **network-related** and **SMTP exceptions**.  
+
+4. **Closing the Connection:**
    ```python
    connection.quit()
    ```
-   - **`quit()`** terminates the SMTP session properly.  
+   - Closes the **SMTP connection** properly using the `QUIT` command.  
 
 ---
 
 ### ✅ **Potential Questions:**
-1. **What does `smtplib.SMTP(server)` do?**  
-   - It establishes a connection to the specified **SMTP server**.  
+1. **Why use `smtplib.SMTP()` instead of `smtplib.SMTP_SSL()`?**  
+   - `SMTP` starts with a **plaintext connection** and later upgrades to **TLS** using **STARTTLS**.  
 
-2. **What would happen if you forget to call `connection.quit()`?**  
-   - The connection would remain **open**, potentially causing **resource leaks**.  
-
-3. **Why is `sendmail()` used instead of `send_message()`?**  
-   - `sendmail()` is simpler for **plain text messages** but lacks **MIME support** for complex emails.  
+2. **Why is error handling important in this script?**  
+   - To **gracefully handle** network errors and avoid unexpected crashes.  
 
 ---
 
 ---
 
-## **Confirmation Message:**
+## **Function: Sending the Email Securely with TLS**
 ```python
-    s = '' if len(toaddrs) == 1 else 's'
-    print("Message sent to {} recipient{}".format(len(toaddrs), s))
+def send_message_securely(connection, fromaddr, toaddrs, message):
+    code = connection.ehlo()[0]
+    uses_esmtp = (200 <= code <= 299)
+    if not uses_esmtp:
+        code = connection.helo()[0]
+        if not (200 <= code <= 299):
+            print("Remove server refused HELO; code:", code)
+            sys.exit(1)
 ```
 
+---
+
 ### **Explanation:**
-- **Confirmation Message:**  
+1. **Sending the EHLO Command:**
    ```python
-   s = '' if len(toaddrs) == 1 else 's'
-   print("Message sent to {} recipient{}".format(len(toaddrs), s))
+   code = connection.ehlo()[0]
+   uses_esmtp = (200 <= code <= 299)
    ```
-   - Displays a message confirming the number of recipients.  
-   - Adjusts **pluralization** for proper grammar.  
+   - **`EHLO` (Extended Hello)** is used to identify the server's capabilities.  
+
+2. **Fallback to HELO (Legacy SMTP Servers):**
+   ```python
+   code = connection.helo()[0]
+   ```
+   - If **ESMTP** fails, the script attempts the older **HELO** command.  
 
 ---
 
 ### ✅ **Potential Questions:**
-1. **Why check for multiple recipients using the conditional operator?**  
-   - To ensure the message uses the correct grammar (singular vs. plural).  
+1. **What is the difference between `EHLO` and `HELO` in SMTP?**  
+   - **EHLO** is used for **ESMTP** (Extended SMTP) with support for additional features.  
+   - **HELO** is the older **SMTP** greeting for basic email transactions.  
 
 ---
 
 ---
 
-## **Main Execution Block:**
+### **Enabling TLS Encryption (STARTTLS)**
 ```python
-if __name__ == '__main__':
-    main()
+    if uses_esmtp and connection.has_extn('starttls'):
+        print("Negotiating TLS....")
+        context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+        context.set_default_verify_paths()
+        context.verify_mode = ssl.CERT_REQUIRED
+        connection.starttls(context=context)
+        code = connection.ehlo()[0]
+        if not (200 <= code <= 299):
+            print("Couldn't EHLO after STARTTLS")
+            sys.exit(5)
+        print("Using TLS connection.")
+    else:
+        print("Server does not support TLS; using normal connection.")
 ```
 
+---
+
 ### **Explanation:**
-- **Python Standard Entry Point:**  
-   - Ensures the script runs **only when executed directly**, not when imported.  
+1. **Checking TLS Support:**
+   ```python
+   if uses_esmtp and connection.has_extn('starttls'):
+   ```
+   - If **ESMTP** and **STARTTLS** are supported, the connection will be encrypted.  
+
+2. **Creating the TLS Context:**
+   ```python
+   context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+   context.set_default_verify_paths()
+   context.verify_mode = ssl.CERT_REQUIRED
+   ```
+   - **`SSLContext`** creates a **TLS context** for encryption.  
+   - **`ssl.PROTOCOL_SSLv23`** provides compatibility with multiple SSL/TLS versions.  
+
+3. **Starting TLS:**
+   ```python
+   connection.starttls(context=context)
+   ```
+   - Upgrades the connection from **plaintext** to **TLS encrypted** using **STARTTLS**.  
 
 ---
 
 ### ✅ **Potential Questions:**
-1. **Why use `if __name__ == "__main__":` in Python scripts?**  
-   - To prevent the script from running when **imported** as a module.  
+1. **What does `connection.starttls()` do?**  
+   - It **upgrades** a plaintext SMTP connection to a **secure TLS connection**.  
+
+2. **Why use `ssl.CERT_REQUIRED`?**  
+   - To ensure the server's **certificate** is validated before proceeding.  
+
+---
+
+---
+
+## **Sending the Email After Encryption:**
+```python
+    connection.sendmail(fromaddr, toaddrs, message)
+```
+
+- **Sends the email securely** after the TLS handshake is complete.  
 
 ---
 
 ---
 
 # ✅ **Summary of Key Concepts:**
-| **Concept**                    | **Explanation**                                   |
-|--------------------------------|--------------------------------------------------|
-| **SMTP Protocol**              | Used for sending emails over a network.          |
-| **smtplib**                    | Python's built-in library for sending emails.    |
-| **Plain Text Email**           | The script sends a basic **plain-text** message. |
-| **Command-Line Arguments**     | Used for passing **server**, **sender**, and **recipients**. |
-| **Error Handling**             | The script checks for **incorrect usage** and exits. |
-
----
-
----
-
-# ✅ **Exam-Style Questions:**
-
-### **True/False Questions:**
-1. **True or False:** The script uses `smtplib` to send emails.  
-   - **True**  
-
-2. **True or False:** The script supports HTML emails.  
-   - **False** (It only supports **plain text**).  
-
----
-
-### **Multiple Choice Questions (MCQ):**
-1. **What does the `smtplib.SMTP(server)` method do?**  
-   - A) Receives emails from a server.  
-   - B) Sends an email directly to recipients.  
-   - C) Establishes a connection to an SMTP server.  
-   - **Answer:** C) Establishes a connection to an SMTP server.  
-
-2. **Why use `sys.argv[3:]` in this script?**  
-   - A) To collect the list of recipients.  
-   - B) To fetch the SMTP server address.  
-   - C) To store the message body.  
-   - **Answer:** A) To collect the list of recipients.  
-
----
-
-### **Short Answer Questions:**
-1. **How can you modify the script to send a message with multiple recipients?**  
-   - List additional recipients after the sender address in `sys.argv`.  
-
-2. **What happens if you omit the call to `connection.quit()`?**  
-   - The SMTP session remains **open**, potentially causing **resource leaks**.  
+| **Concept**                    | **Explanation**                                    |
+|---------------------------------|---------------------------------------------------|
+| **SMTP Protocol**               | Used for sending emails over a network.           |
+| **TLS Encryption**              | Ensures the communication channel is **secure**.  |
+| **smtplib Module**              | Provides **email-sending tools** using SMTP.      |
+| **STARTTLS**                    | Used to upgrade a **plaintext** SMTP connection to **TLS**. |
+| **Error Handling**              | Catches **network and SMTP errors** gracefully.   |
 
 ---
 
