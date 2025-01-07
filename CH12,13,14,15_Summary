@@ -1,0 +1,25 @@
+
+### Chapter 12: Building and Parsing E-Mail
+
+- **Email Components**: The chapter begins by outlining the structure of an email, which includes headers, body, and optional MIME parts. Headers contain metadata about the email, such as sender, recipient, subject, and timestamps.
+- **MIME Standard**: Introduced to overcome the limitations of the original email protocol that only supported ASCII text. MIME allows emails to contain text in character sets other than ASCII, multimedia content, and other data types.
+- **Creating Emails**: Guidelines and best practices for creating well-formed emails, including the correct use of MIME for multipart messages and encoding mechanisms like quoted-printable and Base64 for non-text attachments.
+
+### Chapter 13: Simple Mail Transport Protocol (SMTP)
+
+- **SMTP Basics**: Describes SMTP as the protocol used to send emails from a client to a server or between servers. It handles the forwarding of emails to the recipient's mail server.
+- **SMTP Extensions (ESMTP)**: Enhancements to SMTP that support modern features like authentication, encryption (TLS), and the ability to handle larger messages.
+- **SMTP Transaction Process**: Details the sequence of commands and responses involved in sending an email, including `EHLO`, `MAIL FROM`, `RCPT TO`, `DATA`, and `QUIT`.
+
+### Chapter 14: Post Office Protocol (POP)
+
+- **Protocol Overview**: POP3 allows users to retrieve emails from their mail server to their local computers. It is designed to be simple and robust, suitable for basic email functionalities.
+- **Session Management**: Explains the POP3 connection lifecycle, including authorization, transaction, and update phases, with commands like `USER`, `PASS`, `LIST`, `RETR`, and `DELE`.
+- **Limitations**: Discusses how POP3's design is geared towards single-device email management, leading to difficulties in maintaining synchronized states across multiple devices.
+
+### Chapter 15: Internet Message Access Protocol (IMAP)
+
+- **IMAP Capabilities**: More advanced than POP3, IMAP provides features such as server-side searches, folder management, and maintaining email status (read, unread, flagged) across multiple clients.
+- **Connection States**: Describes the different states of an IMAP connection: Not Authenticated, Authenticated, and Selected, each offering different levels of interaction with the mail server.
+- **Complex Operations**: IMAP supports complex operations like partial fetches, which allow downloading only parts of the body of emails, useful for large attachments.
+
